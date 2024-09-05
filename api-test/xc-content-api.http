@@ -1,0 +1,37 @@
+###查询课程信息
+POST {{content_host}}/content/course/list?pageNo=1&pageSize=2
+Content-Type: application/json
+
+{
+  "auditStatus": "202004",
+  "courseName": "java",
+  "publishStatus": ""
+}
+
+
+###查询课程分类
+GET {{content_host}}/content/course-category/tree-nodes
+
+###新增课程
+###
+POST http://localhost:63040/content/course
+Content-Type: application/json
+
+{
+  "charge": "201001",
+  "price": "13213",
+  "qq": "123792",
+  "wechat": "1231313",
+  "phone": "134144872",
+  "validDays": 365,
+  "mt": "1-1",
+  "st": "1-1-1",
+  "name": "",
+  "pic": "fafas",
+  "teachmode": "200003",
+  "users": "佛文化服务",
+  "tags": "414141",
+  "grade": "204003",
+  "description": "放松放松放松",
+  "originalPrice": "2798171"
+}

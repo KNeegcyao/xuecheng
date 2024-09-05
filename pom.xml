@@ -9,10 +9,16 @@
 
     <version>1.0-SNAPSHOT</version>
 
-    <packaging>pom</packaging>
     <modules>
         <module>huanf-xue-base</module>
+
+        <module>huanf-xue-content</module>
+
+        <module>huanf-xue-system</module>
+
     </modules>
+
+    <packaging>pom</packaging>
 
     <properties>
         <java.version>1.8</java.version>
