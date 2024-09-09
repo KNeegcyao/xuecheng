@@ -5,7 +5,7 @@
 <mapper namespace="com.huanf.content.mapper.CourseBaseMapper">
 
     <!--课程分页查询-->
-    <select id="coursePage" resultType="com.huanf.domain.entity.CourseBase">
+    <select id="coursePage" resultType="com.huanf.content.domain.entity.CourseBase">
         SELECT cb.*, cm.charge
         FROM course_base cb
         LEFT JOIN course_market cm ON cb.id = cm.id

@@ -1,14 +1,15 @@
 package com.huanf.content.service.Impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.huanf.content.domain.dto.CourseCategoryDto;
+import com.huanf.content.domain.entity.CourseCategory;
 import com.huanf.content.mapper.CourseCategoryMapper;
 import com.huanf.content.service.CourseCategoryService;
-import com.huanf.domain.dto.CourseCategoryDto;
-import com.huanf.domain.entity.CourseCategory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper, CourseCategory> implements CourseCategoryService {
 
-    @Autowired
+    @Resource
     private CourseCategoryMapper courseCategoryMapper;
     @Override
     public List<CourseCategoryDto> queryTreeNodes(String id) {
@@ -30,7 +31,7 @@ public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper,
         //filter(item->!id.equals(item.getId()))目的是把根节点排除
         Map<String, CourseCategoryDto> map =
                 list.stream().filter(item->!id.equals(item.getId())).collect(Collectors.toMap(
-                        CourseCategory::getId, value -> value, (key1, key2) -> key2
+                        key->key.getId(), value -> value, (key1, key2) -> key2
         ));
         //定义一个最终返回的list
         List<CourseCategoryDto> resultList=new ArrayList<>();
@@ -45,15 +46,14 @@ public class CourseCategoryServiceImpl extends ServiceImpl<CourseCategoryMapper,
                     //找到当前节点的父节点是存在的(此时这个父节点就是二级节点，也就是下面为了存入三级节点或更多级节点
                     CourseCategoryDto courseCategoryParent = map.get(item.getParentid());
                     if (courseCategoryParent != null) {
-                        if (courseCategoryParent.getChildrenTreeNode()==null) {
+                        if (courseCategoryParent.getChildrenTreeNodes()==null) {
                             //如果该父节点的childrenTreeNodes属性为空要new一个集合，因为要向该集合中放入他的子节点
-                            courseCategoryParent.setChildrenTreeNode(new ArrayList<CourseCategoryDto>());
+                            courseCategoryParent.setChildrenTreeNodes(new ArrayList<CourseCategoryDto>());
                         }
                         //找到每个节点的子节点放在父节点的childrenTreeNodes属性中
-                        courseCategoryParent.getChildrenTreeNode().add(item);
+                        courseCategoryParent.getChildrenTreeNodes().add(item);
                     }
-                }
-                );
+                });
         return resultList;
     }
 }
