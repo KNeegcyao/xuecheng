@@ -1,5 +1,6 @@
 package com.huanf.content.domain.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import java.io.Serializable;
@@ -8,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import net.sf.jsqlparser.expression.DateTimeLiteralExpression.DateTime;
+
 /**
  * 课程-教师关系表(CourseTeacher)表实体类
  *

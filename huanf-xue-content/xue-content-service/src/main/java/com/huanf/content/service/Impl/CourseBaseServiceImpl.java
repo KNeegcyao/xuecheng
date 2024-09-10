@@ -1,6 +1,7 @@
 package com.huanf.content.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.huanf.base.model.PageParams;
@@ -9,14 +10,11 @@ import com.huanf.content.domain.dto.AddCourseDto;
 import com.huanf.content.domain.dto.CourseBaseInfoDto;
 import com.huanf.content.domain.dto.EditCourseDto;
 import com.huanf.content.domain.dto.QueryCourseParamsDto;
-import com.huanf.content.domain.entity.CourseBase;
-import com.huanf.content.domain.entity.CourseCategory;
-import com.huanf.content.domain.entity.CourseMarket;
-import com.huanf.content.mapper.CourseBaseMapper;
-import com.huanf.content.mapper.CourseCategoryMapper;
-import com.huanf.content.mapper.CourseMarketMapper;
+import com.huanf.content.domain.entity.*;
+import com.huanf.content.mapper.*;
 import com.huanf.content.service.CourseBaseService;
 
+import com.huanf.content.service.TeachplanService;
 import com.xuecheng.base.exception.XueChengPlusException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +25,7 @@ import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 课程基本信息(CourseBase)表服务实现类
@@ -45,6 +44,15 @@ public class CourseBaseServiceImpl extends ServiceImpl<CourseBaseMapper, CourseB
 
     @Resource
     CourseCategoryMapper courseCategoryMapper;
+
+    @Resource
+    TeacherMapper teacherMapper;
+
+    @Resource
+    TeachplanMapper teachplanMapper;
+
+    @Resource
+    TeachplanMediaMapper teachplanMediaMapper;
     /**
      * 查询
      * @param pageParams 分页参数
@@ -83,36 +91,6 @@ public class CourseBaseServiceImpl extends ServiceImpl<CourseBaseMapper, CourseB
      */
     @Override
     public CourseBaseInfoDto createCourseBase(Long companyId, AddCourseDto addCourseDto) {
-        //参数合法性校验
-        //向课程信息表course_base写入数据
-        //合法性校验
-/*        if (StringUtils.isBlank(addCourseDto.getName())) {
-//            throw new com.xuecheng.base.exception.XueChengPlusException("课程名称为空");
-//        }
-//
-//        if (StringUtils.isBlank(addCourseDto.getMt())) {
-//            throw new com.xuecheng.base.exception.XueChengPlusException("课程分类为空");
-//        }
-//
-//        if (StringUtils.isBlank(addCourseDto.getSt())) {
-//            throw new com.xuecheng.base.exception.XueChengPlusException("课程分类为空");
-//        }
-//
-//        if (StringUtils.isBlank(addCourseDto.getGrade())) {
-//            throw new com.xuecheng.base.exception.XueChengPlusException("课程等级为空");
-//        }
-//
-//        if (StringUtils.isBlank(addCourseDto.getTeachmode())) {
-//            throw new com.xuecheng.base.exception.XueChengPlusException("教育模式为空");
-//        }
-//
-//        if (StringUtils.isBlank(addCourseDto.getUsers())) {
-//            throw new com.xuecheng.base.exception.XueChengPlusException("适应人群");
-//        }
-//
-//        if (StringUtils.isBlank(addCourseDto.getCharge())) {
-//            throw new com.xuecheng.base.exception.XueChengPlusException("收费规则为空");
-//        }*/
         CourseBase courseBase = new CourseBase();
         BeanUtils.copyProperties(addCourseDto,courseBase);
         courseBase.setCompanyId(companyId);
@@ -155,7 +133,7 @@ public class CourseBaseServiceImpl extends ServiceImpl<CourseBaseMapper, CourseB
         }
         CourseCategory mtCategory = courseCategoryMapper.selectById(courseBase.getMt());
         if(mtCategory==null){
-            throw new XueChengPlusException("无大分类");
+            XueChengPlusException.cast("无大分类");
         }
         courseBaseInfoDto.setMtName(mtCategory.getName());
         CourseCategory stCategory = courseCategoryMapper.selectById(courseBase.getSt());
@@ -203,6 +181,41 @@ public class CourseBaseServiceImpl extends ServiceImpl<CourseBaseMapper, CourseB
 
         //查询课程信息
         return getCourseBaseInfo(courseId);
+    }
+
+    /**
+     * 删除课程信息
+     * @param l
+     * @param courseId
+     */
+    @Override
+    public void deleteCourseBase(Long companyId, Long courseId) {
+        //本机构只能删除本机构的课程
+        CourseBase courseBase = getById(courseId);
+        if(courseBase==null){
+            XueChengPlusException.cast("删除的课程不存在");
+        }
+        if(!companyId.equals(courseBase.getCompanyId())){
+            XueChengPlusException.cast("本机构只能删除本机构的课程");
+        }
+        if(!courseBase.getAuditStatus().equals("202002")){
+            XueChengPlusException.cast("课程审核状态已提交，删除失败");
+        }
+        courseBaseMapper.deleteById(courseId);
+        courseMarketMapper.deleteById(courseId);
+        LambdaQueryWrapper<Teachplan> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper= queryWrapper.eq(Teachplan::getCourseId, courseId);
+        teachplanMapper.delete(queryWrapper);
+
+        LambdaQueryWrapper<CourseTeacher> queryWrappertea = new LambdaQueryWrapper<>();
+        queryWrappertea=queryWrappertea .eq(CourseTeacher::getCourseId,courseId);
+        List<CourseTeacher> teachers = teacherMapper.selectList(queryWrappertea);
+        List<Long> idList = teachers.stream()
+                .map(CourseTeacher::getId)
+                .collect(Collectors.toList());
+        if (idList != null && !idList.isEmpty()) {
+            teacherMapper.deleteBatchIds(idList);
+        }
     }
 
     //保存营销信息

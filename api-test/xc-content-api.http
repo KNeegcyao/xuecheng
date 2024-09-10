@@ -84,8 +84,28 @@ POST {{content_host}}/content/courseTeacher
 Content-Type: application/json
 
 {
+  "courseId": "75",
+  "teacherName": "王老师",
+  "position": "教师职位",
+  "introduction": "教师简fsfsfsdffwsfew介"
+}
+
+###修改教师
+PUT {{content_host}}/content/courseTeacher
+Content-Type: application/json
+
+{
+  "id": 24,
   "courseId": 75,
   "teacherName": "王老师",
   "position": "教师职位",
-  "introduction": "教师简介"
+  "introduction": "教师简介dhuaguagdiadhiadhiagiagdu",
+  "photograph": null,
+  "createDate": null
 }
+
+###删除教师信息
+DELETE {{content_host}}/content/courseTeacher/course/75/24
+
+###删除课程信息
+DELETE {{content_host}}/content/course/201

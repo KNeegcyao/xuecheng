@@ -1,8 +1,11 @@
 package com.huanf.content.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.huanf.content.domain.dto.CourseTeacherDto;
+import com.huanf.content.domain.dto.AddCourseTeacherDto;
+import com.huanf.content.domain.dto.EditCourseTeacherDto;
 import com.huanf.content.domain.entity.CourseTeacher;
+
+import java.util.List;
 
 public interface TeacherService extends IService<CourseTeacher> {
     /**
@@ -10,14 +13,30 @@ public interface TeacherService extends IService<CourseTeacher> {
      * @param courseId 课程id
      * @return
      */
-    CourseTeacher queryById(Long courseId);
+    List<CourseTeacher> queryById(Long courseId);
 
     /**
-     * 新增教师
+     * 新增教师信息
      * @param l
-     * @param courseTeacherDto
+     * @param addcCurseTeacherDto
      * @return
      */
-    CourseTeacher createTeacher(long l, CourseTeacherDto courseTeacherDto);
+    CourseTeacher createTeacher(long l, AddCourseTeacherDto addcCurseTeacherDto);
+
+    /**
+     * 修改教师信息
+     * @param l
+     * @param editCourseTeacherDto
+     * @return
+     */
+    CourseTeacher modifyTeacher(long l, EditCourseTeacherDto editCourseTeacherDto);
+
+    /**
+     * 删除教师信息
+     * @param l
+     * @param courseId
+     * @param teacherId
+     */
+    void deleteTeacher(long l, Long courseId, Long teacherId);
 
 }

@@ -9,6 +9,7 @@ import com.huanf.content.domain.dto.EditCourseDto;
 import com.huanf.content.domain.dto.QueryCourseParamsDto;
 import com.huanf.content.domain.entity.CourseBase;
 import com.huanf.content.service.CourseBaseService;
+import com.huanf.content.service.TeacherService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,4 +53,10 @@ public class CourseBaseInfoController {
     }
 
 
+    @ApiOperation("删除课程接口")
+    @DeleteMapping("/course/{courseId}")
+    public void deleteCourseBase(@PathVariable Long courseId){
+        courseBaseService.deleteCourseBase(1232141425L,courseId);
+
+    }
 }
