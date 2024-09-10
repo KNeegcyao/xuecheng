@@ -25,6 +25,8 @@ public class TeacherController {
     @ApiOperation("新增教师")
     public CourseTeacher createTeacher(@RequestBody CourseTeacherDto courseTeacherDto){
         return teacherService.createTeacher(1232141425L,courseTeacherDto);
-
     }
+
+    @PutMapping("/courseTeacher")
+    public CourseTeacher modifyTeacher()
 }

@@ -1,0 +1,35 @@
+
+# system模块的启动类在启动的时候，就会根据这个文件去读取配置
+server:
+  port: 63110
+  servlet:
+    # 外部想要访问这个system模块的controller请求，就必须在请求路径前面加上//system，例如 http://localhost:63110/system/xxx
+    context-path: /system
+
+#微服务配置
+spring:
+  application:
+    # 服务名
+    name: system-api
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.101.65:3306/xcplus_system?characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: mysql
+
+mybatis-plus:
+  configuration:
+    # 日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 日志文件配置路径
+logging:
+  config: classpath:log4j2-dev.xml
+
+swagger:
+  title: "学成在线"
+  description: "系统管理模块"
+  base-package: com.huanf.system
+  enabled: true
+  version: 1.0.0
+
