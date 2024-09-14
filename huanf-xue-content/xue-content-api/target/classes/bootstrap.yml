@@ -1,42 +1,28 @@
-
-# content模块的启动类在启动的时候，就会根据这个文件去读取配置
-server:
-  port: 63040
-  servlet:
-    # 外部想要访问这个content模块的controller请求，就必须在请求路径前面加上/content，例如 http://localhost:63040/content/course/list
-    context-path: /content
-
 #微服务配置
 spring:
   application:
-    # 服务名
-    name: content-api
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.101.65:3306/xcplus_content?characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: mysql
-
-# 日志文件配置路径
-logging:
-  config: classpath:log4j2-dev.xml
-
-swagger:
-  title: "学成在线"
-  description: "内容系统管理系统对课程相关信息进行管理"
-  base-package: com.huanf.content
-  enabled: true
-  version: 1.0.0
-
-mybatis-plus:
-  # 如果你字段用了枚举，就要指定枚举所在的包，不然映射不到枚举字段
-  type-enums-package: com.huanf.base.enums
-  configuration:
-    # 日志
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    # 对注解方式的枚举处理能提前加载缓存
-    default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler
-  global-config:
-    db-config:
-      # 主键自增
-      id-type: auto
+    name: content-api   # 服务名 content-api-dev.yaml
+  cloud:
+    nacos:
+      server-addr: 192.168.101.65:8848
+      discovery:
+        namespace: dev
+        group: xuecheng-plus-project
+      config:  #配置文件相关配置
+        namespace: dev
+        group: xuecheng-plus-project
+        file-extension: yaml
+        refresh-enabled: true
+        extension-configs:
+          - data-id: content-service-${spring.profiles.active}.yaml
+            group: xuecheng-plus-project
+            refresh: true
+        shared-configs:
+          - data-id: swagger-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+          - data-id: logging-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+  profiles:
+    active: dev  #环境名

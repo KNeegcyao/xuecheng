@@ -1,28 +1,22 @@
-#微服务配置
 spring:
   application:
-    name: system-api   # 服务名 system-api-dev.yaml
+    name: gateway
   cloud:
     nacos:
       server-addr: 192.168.101.65:8848
       discovery:
         namespace: dev
         group: xuecheng-plus-project
-      config:  #配置文件相关配置
+      config:
         namespace: dev
         group: xuecheng-plus-project
         file-extension: yaml
         refresh-enabled: true
-        extension-configs:
-          - data-id: system-service-${spring.profiles.active}.yaml
-            group: xuecheng-plus-project
-            refresh: true
         shared-configs:
-          - data-id: swagger-${spring.profiles.active}.yaml
-            group: xuecheng-plus-common
-            refresh: true
           - data-id: logging-${spring.profiles.active}.yaml
             group: xuecheng-plus-common
             refresh: true
   profiles:
-    active: dev  #环境名
+    active: dev
+server:
+  port: 63010  # 确保设置端口号
