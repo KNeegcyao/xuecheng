@@ -1,5 +1,6 @@
 package com.huanf.content.api;
 
+import com.huanf.content.domain.dto.BindTeachplanMediaDto;
 import com.huanf.content.domain.dto.SaveTeachplanDto;
 import com.huanf.content.domain.dto.TeachplanDto;
 import com.huanf.content.service.TeachplanService;
@@ -36,9 +37,15 @@ public class TeachplanController {
         teachplanService.deleteTeachplan(teachplanId);
     }
 
-    @ApiOperation("向下移动")
+    @ApiOperation("向上下移动")
     @PostMapping("/teachplan/{down}/{teachplanId}")
     public void movedown(@PathVariable String down,@PathVariable Long teachplanId){
         teachplanService.movedown(down,teachplanId);
+    }
+
+    @ApiOperation(value = "课程计划和媒资信息绑定")
+    @PostMapping("/teachplan/association/media")
+    public void associationMeida(@RequestBody BindTeachplanMediaDto bindTeachplanMediaDto){
+        teachplanService.associationMedia(bindTeachplanMediaDto);
     }
 }

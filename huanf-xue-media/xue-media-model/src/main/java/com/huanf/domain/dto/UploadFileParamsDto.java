@@ -3,8 +3,13 @@ package com.huanf.domain.dto;
 import lombok.Data;
 import lombok.ToString;
 
+/**
+ * @description 上传普通文件请求参数
+ * @author Mr.M
+ * @date 2022/9/12 18:49
+ * @version 1.0
+ */
 @Data
-@ToString
 public class UploadFileParamsDto {
 
     /**
@@ -36,6 +41,7 @@ public class UploadFileParamsDto {
      * 备注
      */
     private String remark;
+
 
 
 }

@@ -11,9 +11,9 @@
 
     <modules>
         <module>huanf-xue-base</module>
-
         <module>huanf-xue-content</module>
-
+        <module>huanf-xue-gateway</module>
+        <module>huanf-xue-media</module>
         <module>huanf-xue-system</module>
 
     </modules>

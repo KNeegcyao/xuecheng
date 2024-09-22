@@ -2,6 +2,7 @@ package com.huanf.content.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.huanf.content.domain.dto.BindTeachplanMediaDto;
 import com.huanf.content.domain.dto.SaveTeachplanDto;
 import com.huanf.content.domain.dto.TeachplanDto;
 import com.huanf.content.domain.entity.Teachplan;
@@ -12,16 +13,17 @@ import com.huanf.content.service.TeachplanService;
 import com.xuecheng.base.exception.XueChengPlusException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.sql.Wrapper;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class TeachplanServiceImpl implements TeachplanService {
     @Resource
     TeachplanMapper teachplanMapper;
-
     @Resource
     TeachplanMediaMapper teachplanMediaMapper;
 
@@ -146,6 +148,36 @@ public class TeachplanServiceImpl implements TeachplanService {
         }else{
             throw new XueChengPlusException("无此类操作，请重试！");
         }
+    }
+
+    /**
+     * 教学计划绑定媒资
+     * @param bindTeachplanMediaDto
+     */
+    @Override
+    @Transactional
+    public void associationMedia(BindTeachplanMediaDto bindTeachplanMediaDto) {
+        //先删除原有记录，根据课程计划id删除他所绑定的媒资
+        Long teachplanId = bindTeachplanMediaDto.getTeachplanId();
+        //课程id
+        Teachplan teachplan = teachplanMapper.selectById(teachplanId);
+        if(teachplan==null){
+            XueChengPlusException.cast("教学计划不存在");
+        }
+        Long courseId = teachplan.getCourseId();
+
+        Integer grade = teachplan.getGrade();
+        if(grade!=2){
+            XueChengPlusException.cast("只允许第二级教学计划绑定媒资文件");
+        }
+        int delete = teachplanMediaMapper.delete(new LambdaQueryWrapper<TeachplanMedia>().eq(TeachplanMedia::getTeachplanId, teachplanId));
+        //在添加
+        TeachplanMedia teachplanMedia = new TeachplanMedia();
+        BeanUtils.copyProperties(bindTeachplanMediaDto,teachplanMedia);
+        teachplanMedia.setCourseId(courseId);
+        teachplanMedia.setCreateDate(LocalDateTime.now());
+        teachplanMedia.setMediaFilename(bindTeachplanMediaDto.getFileName());
+        teachplanMediaMapper.insert(teachplanMedia);
     }
 
     //交换orderby并保存数据库

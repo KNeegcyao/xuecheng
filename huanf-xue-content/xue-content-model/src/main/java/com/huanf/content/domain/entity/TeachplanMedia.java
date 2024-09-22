@@ -1,12 +1,11 @@
 package com.huanf.content.domain.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
-import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 /**
  * (TeachplanMedia)表实体类
@@ -32,7 +31,7 @@ public class TeachplanMedia  {
     //媒资文件原始名称
     private String mediaFilename;
     
-    private Date createDate;
+    private LocalDateTime createDate;
     //创建人
     private String createPeople;
     //修改人
