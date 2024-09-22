@@ -2,8 +2,11 @@
 <Configuration monitorInterval="180" packages="">
     <properties>
         <property name="logdir">logs</property>
+
         <property name="PATTERN">%date{YYYY-MM-dd HH:mm:ss,SSS} %level [%thread][%file:%line] - %msg%n%throwable</property>
+
     </properties>
+
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="${PATTERN}"/>
@@ -16,6 +19,7 @@
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true" />
             </Policies>
+
         </RollingFile>
 
         <RollingFile name="DebugAppender" fileName="${logdir}/info.log"
@@ -25,6 +29,7 @@
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true" />
             </Policies>
+
         </RollingFile>
 
         <!--异步appender-->
@@ -32,12 +37,14 @@
             <AppenderRef ref="ErrorAppender"/>
             <AppenderRef ref="DebugAppender"/>
         </Async>
+
     </Appenders>
 
     <Loggers>
         <!--过滤掉spring和mybatis的一些无用的debug信息
        <logger name="org.springframework" level="INFO">
        </logger>
+
        <logger name="org.mybatis" level="INFO">
        </logger>-->
         <logger name="cn.itcast.wanxinp2p.consumer.mapper" level="DEBUG">
@@ -45,8 +52,10 @@
 
         <logger name="springfox" level="INFO">
         </logger>
+
         <logger name="org.apache.http" level="INFO">
         </logger>
+
         <logger name="com.netflix.discovery" level="INFO">
         </logger>
 
@@ -81,5 +90,7 @@
             <AppenderRef ref="Console"/>
             <AppenderRef ref="DebugAppender"/>
         </Root>
+
     </Loggers>
+
 </Configuration>

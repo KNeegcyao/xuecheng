@@ -1,5 +1,6 @@
 package com.huanf.content.service;
 
+import com.huanf.content.domain.dto.BindTeachplanMediaDto;
 import com.huanf.content.domain.dto.SaveTeachplanDto;
 import com.huanf.content.domain.dto.TeachplanDto;
 
@@ -26,8 +27,14 @@ public interface TeachplanService {
     void deleteTeachplan(Long teachplanId);
 
     /**
-     * 下移课程计划
+     * 移动课程计划
      * @param teachplanId
      */
     void movedown(String down,Long teachplanId);
+
+    /**
+     * 教学计划绑定媒资
+     * @param bindTeachplanMediaDto
+     */
+    void associationMedia(BindTeachplanMediaDto bindTeachplanMediaDto);
 }
