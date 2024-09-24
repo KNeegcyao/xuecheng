@@ -1,5 +1,6 @@
 package com.huanf.content.domain.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import java.io.Serializable;
@@ -58,9 +59,9 @@ public class CoursePublishPre  {
     //教师信息，json格式
     private String teachers;
     //提交时间
-    private Date createDate;
+    private LocalDateTime createDate;
     //审核时间
-    private Date auditDate;
+    private LocalDateTime auditDate;
     //状态
     private String status;
     //备注
@@ -68,9 +69,9 @@ public class CoursePublishPre  {
     //收费规则，对应数据字典--203
     private String charge;
     //现价
-    private Object price;
+    private Integer price;
     //原价
-    private Object originalPrice;
+    private Integer originalPrice;
     //课程有效期天数
     private Integer validDays;
 }

@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.internal.engine.groups.ValidationOrderGenerator;
+
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -33,8 +35,8 @@ public class AddCourseDto{
     private String name;
 
     @NotEmpty(message = "适用人群不能为空")
-    //@Size(max = 3, message = "适用人群内容过大")//注意这里校验的就是字符串位数，而不是数值大小
-    @Min(value = 20, message = "适用人群过少，请最低填入20") //如果要校验字符串的数值大小，用@Max或@Min，别用@Size
+    @Size(max = 20, message = "适用人群内容过大")//注意这里校验的就是字符串位数，而不是数值大小
+    //@Max(value = 20, message = "适用人群过少，请最低填入20") //如果要校验字符串的数值大小，用@Max或@Min，别用@Size
     @ApiModelProperty(value = "适用人群", required = true)
     private String users;
 

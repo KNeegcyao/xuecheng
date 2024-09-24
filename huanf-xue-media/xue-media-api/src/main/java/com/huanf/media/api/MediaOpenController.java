@@ -1,6 +1,7 @@
 package com.huanf.media.api;
 
 import com.alibaba.cloud.commons.lang.StringUtils;
+import com.huanf.base.exception.XueChengPlusException;
 import com.huanf.base.model.RestResponse;
 import com.huanf.domain.entity.MediaFiles;
 import com.huanf.media.service.MediaFilesService;
@@ -28,7 +29,7 @@ public class MediaOpenController {
 
         MediaFiles mediaFiles = mediaFileService.getFileById(mediaId);
         if(mediaFiles == null || StringUtils.isEmpty(mediaFiles.getUrl())){
-            com.xuecheng.base.exception.XueChengPlusException.cast("视频还没有转码处理");
+            XueChengPlusException.cast("视频还没有转码处理");
         }
         return RestResponse.success(mediaFiles.getUrl());
 

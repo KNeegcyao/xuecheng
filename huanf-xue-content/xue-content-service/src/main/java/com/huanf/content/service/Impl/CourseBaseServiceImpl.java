@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.huanf.base.exception.XueChengPlusException;
 import com.huanf.base.model.PageParams;
 import com.huanf.base.model.PageResult;
 import com.huanf.content.domain.dto.AddCourseDto;
@@ -15,7 +16,6 @@ import com.huanf.content.mapper.*;
 import com.huanf.content.service.CourseBaseService;
 
 import com.huanf.content.service.TeachplanService;
-import com.xuecheng.base.exception.XueChengPlusException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.CachedIntrospectionResults;
@@ -99,6 +99,7 @@ public class CourseBaseServiceImpl extends ServiceImpl<CourseBaseMapper, CourseB
         courseBase.setAuditStatus("202002");
         //发布状态为未发布
         courseBase.setStatus("203001");
+        System.out.println(courseBase.getId());
         //插入数据库
         int insert = courseBaseMapper.insert(courseBase);
         if(insert<=0){
@@ -110,7 +111,6 @@ public class CourseBaseServiceImpl extends ServiceImpl<CourseBaseMapper, CourseB
         courseMarket.setId(courseBase.getId());
         //保存营销信息
         saveCourseMarket(courseMarket);
-
         return getCourseBaseInfo(courseBase.getId());
 
     }
