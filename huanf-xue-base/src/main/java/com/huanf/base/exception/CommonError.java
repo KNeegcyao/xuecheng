@@ -1,4 +1,4 @@
-package com.xuecheng.base.exception;
+package com.huanf.base.exception;
 
 
 /**

@@ -1,5 +1,6 @@
-package com.xuecheng.base.exception;
+package com.huanf.base.exception;
 
+import com.huanf.base.exception.XueChengPlusException;
 import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -30,11 +31,11 @@ public class GlobalExceptionHandler {
      * @return
      */
     @ResponseBody
-    @ExceptionHandler(com.xuecheng.base.exception.XueChengPlusException.class)
+    @ExceptionHandler(XueChengPlusException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public com.xuecheng.base.exception.RestErrorResponse customException(com.xuecheng.base.exception.XueChengPlusException e) {
+    public RestErrorResponse customException(XueChengPlusException e) {
         log.error("【系统异常】{}",e.getErrMessage(),e);
-        return new com.xuecheng.base.exception.RestErrorResponse(e.getErrMessage());
+        return new RestErrorResponse(e.getErrMessage());
 
     }
 
@@ -47,11 +48,11 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public com.xuecheng.base.exception.RestErrorResponse exception(Exception e) {
+    public RestErrorResponse exception(Exception e) {
 
         log.error("【系统异常】{}",e.getMessage(),e);
 
-        return new com.xuecheng.base.exception.RestErrorResponse(com.xuecheng.base.exception.CommonError.UNKOWN_ERROR.getErrMessage());
+        return new RestErrorResponse(CommonError.UNKOWN_ERROR.getErrMessage());
 
     }
 
@@ -63,7 +64,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public com.xuecheng.base.exception.RestErrorResponse methodArgumentNotValidException( MethodArgumentNotValidException e) {
+    public RestErrorResponse methodArgumentNotValidException( MethodArgumentNotValidException e) {
 
         BindingResult bindingResult = e.getBindingResult();
         ArrayList<Object> errors = new ArrayList<>();
@@ -75,7 +76,7 @@ public class GlobalExceptionHandler {
 
         log.error("【系统异常】{}",e.getMessage(),errMessage);
 
-        return new com.xuecheng.base.exception.RestErrorResponse(errMessage);
+        return new RestErrorResponse(errMessage);
 
     }
 }

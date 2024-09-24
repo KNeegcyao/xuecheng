@@ -1,4 +1,4 @@
-package com.xuecheng.base.exception;
+package com.huanf.base.exception;
 
 
 /**
@@ -24,7 +24,7 @@ public class XueChengPlusException extends RuntimeException {
         return errMessage;
     }
 
-    public static void cast(com.xuecheng.base.exception.CommonError commonError){
+    public static void cast(CommonError commonError){
         throw new XueChengPlusException(commonError.getErrMessage());
     }
     public static void cast(String errMessage){

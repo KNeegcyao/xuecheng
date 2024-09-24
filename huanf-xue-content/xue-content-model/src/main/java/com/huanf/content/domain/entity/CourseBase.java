@@ -3,7 +3,9 @@ package com.huanf.content.domain.entity;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +23,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 @TableName("course_base")
 public class CourseBase  {
     //主键@TableId
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     //机构ID

@@ -1,5 +1,6 @@
 package com.huanf;
 
+import com.huanf.base.exception.GlobalExceptionHandler;
 import com.spring4all.swagger.EnableSwagger2Doc;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,7 +13,7 @@ import org.springframework.context.annotation.Import;
  */
 @EnableSwagger2Doc
 @SpringBootApplication
-@Import(com.xuecheng.base.exception.GlobalExceptionHandler.class)
+@Import(GlobalExceptionHandler.class)
 public class ContentApplication {
     public static void main(String[] args) {
         SpringApplication.run(ContentApplication.class, args);

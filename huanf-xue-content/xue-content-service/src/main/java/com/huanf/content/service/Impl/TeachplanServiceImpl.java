@@ -2,6 +2,7 @@ package com.huanf.content.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.huanf.base.exception.XueChengPlusException;
 import com.huanf.content.domain.dto.BindTeachplanMediaDto;
 import com.huanf.content.domain.dto.SaveTeachplanDto;
 import com.huanf.content.domain.dto.TeachplanDto;
@@ -10,7 +11,6 @@ import com.huanf.content.domain.entity.TeachplanMedia;
 import com.huanf.content.mapper.TeachplanMapper;
 import com.huanf.content.mapper.TeachplanMediaMapper;
 import com.huanf.content.service.TeachplanService;
-import com.xuecheng.base.exception.XueChengPlusException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

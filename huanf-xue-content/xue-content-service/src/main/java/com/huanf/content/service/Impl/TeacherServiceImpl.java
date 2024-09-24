@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.huanf.base.exception.ValidationGroups;
+import com.huanf.base.exception.XueChengPlusException;
 import com.huanf.content.domain.dto.AddCourseTeacherDto;
 import com.huanf.content.domain.dto.EditCourseTeacherDto;
 import com.huanf.content.domain.entity.CourseTeacher;
@@ -14,7 +15,6 @@ import com.huanf.content.service.TeacherService;
 import net.sf.jsqlparser.expression.DateTimeLiteralExpression.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import com.xuecheng.base.exception.XueChengPlusException;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
