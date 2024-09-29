@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PageParams {
+public class  PageParams {
 
     @ApiModelProperty("当前页码")
     private Long pageNo = 1L;

@@ -3,6 +3,7 @@ package com.huanf.content.service;
 import com.huanf.content.domain.dto.BindTeachplanMediaDto;
 import com.huanf.content.domain.dto.SaveTeachplanDto;
 import com.huanf.content.domain.dto.TeachplanDto;
+import com.huanf.content.domain.entity.Teachplan;
 
 import java.util.List;
 
@@ -12,13 +13,13 @@ public interface TeachplanService {
      * @param courseId
      * @return
      */
-    public List<TeachplanDto> findTeachplanTree(long courseId);
+    List<TeachplanDto> findTeachplanTree(long courseId);
 
     /**
      * 课程计划的创建或修改
      * @param saveTeachplanDto
      */
-    void SaveTeachplan(SaveTeachplanDto saveTeachplanDto);
+    void SaveTeachplan(Teachplan saveTeachplanDto);
 
     /**
      * 删除课程计划

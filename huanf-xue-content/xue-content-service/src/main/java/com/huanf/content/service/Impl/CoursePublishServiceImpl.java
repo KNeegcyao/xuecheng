@@ -1,13 +1,16 @@
 package com.huanf.content.service.Impl;
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.huanf.base.exception.XueChengPlusException;
 import com.huanf.base.utils.JsonUtil;
+import com.huanf.content.config.MultipartSupportConfig;
 import com.huanf.content.domain.dto.CourseBaseInfoDto;
 import com.huanf.content.domain.dto.CoursePreviewDto;
 import com.huanf.content.domain.dto.TeachplanDto;
 import com.huanf.content.domain.entity.*;
+import com.huanf.content.feignclient.CourseIndex;
+import com.huanf.content.feignclient.MediaServiceClient;
+import com.huanf.content.feignclient.SearchServiceClient;
 import com.huanf.content.mapper.CourseBaseMapper;
 import com.huanf.content.mapper.CoursePublishMapper;
 import com.huanf.content.mapper.CoursePublishPreMapper;
@@ -15,16 +18,27 @@ import com.huanf.content.service.CourseBaseService;
 import com.huanf.content.service.CourseMarketService;
 import com.huanf.content.service.CoursePublishService;
 import com.huanf.content.service.TeachplanService;
+import com.huanf.messagesdk.model.po.MqMessage;
 import com.huanf.messagesdk.service.MqMessageService;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.connector.CoyoteAdapter;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -42,11 +56,16 @@ public class CoursePublishServiceImpl extends ServiceImpl<CoursePublishPreMapper
     @Resource
     CoursePublishPreMapper coursePublishPreMapper;
     @Resource
-    CoursePublishMapper coursePublishMapper;
-    @Resource
     CourseBaseMapper courseBaseMapper;
     @Resource
     MqMessageService mqMessageService;
+    @Resource
+    MediaServiceClient mediaServiceClient;
+    @Resource
+    CoursePublishMapper coursePublishMapper;
+
+    @Resource
+    SearchServiceClient searchServiceClient;
 
     /**
      * 获取课程预览信息
@@ -111,8 +130,6 @@ public class CoursePublishServiceImpl extends ServiceImpl<CoursePublishPreMapper
             //已存在，更新
             coursePublishPreMapper.updateById(coursePublishPre);
         }
-
-
         //更新基本信息表的审核状态为已提交
         //更新课程基本表的审核状态
         courseBaseInfo.setAuditStatus("202003");
@@ -124,8 +141,10 @@ public class CoursePublishServiceImpl extends ServiceImpl<CoursePublishPreMapper
      * @param companyId
      * @param courseId
      */
+    @Transactional
     @Override
     public void publish(Long companyId, Long courseId) {
+        //从预发布表获取信息
         CoursePublishPre coursePublishPre = coursePublishPreMapper.selectById(courseId);
         //=====约束======
         if(coursePublishPre==null){
@@ -142,7 +161,7 @@ public class CoursePublishServiceImpl extends ServiceImpl<CoursePublishPreMapper
         }
         //向课程发布表course_publish插入一条记录,记录来源于课程预发布表，如果存在则更新，发布状态为：已发布。
         //向消息表写数据
-        saveCoursePublic(courseId);
+        saveCoursePublishMessage(courseId);
         //删除课程预发布表的对应记录。
         coursePublishPreMapper.deleteById(courseId);
         //向mq_message消息表插入一条消息，消息类型为：course_publish
@@ -150,11 +169,118 @@ public class CoursePublishServiceImpl extends ServiceImpl<CoursePublishPreMapper
     }
 
     /**
-     * 保存到课程发布表，更新课程表
-     * 向消息表写入数据
-     * @param courseId
+     * 课程静态化
+     * @param courseId  课程id
+     * @return
      */
-    private void saveCoursePublic(Long courseId) {
-        mqMessageService.addMessage("course_publish", String.valueOf(courseId),null,null);
+    @Override
+    public File generateCourseHtml(Long courseId) {
+
+        //静态化文件
+        File htmlFile  = null;
+
+        try {
+            //配置freemarker
+            Configuration configuration = new Configuration(Configuration.getVersion());
+
+            //加载模板
+            //选指定模板路径,classpath下templates下
+            //得到classpath路径
+            String classpath = this.getClass().getResource("/").getPath();
+            configuration.setDirectoryForTemplateLoading(new File(classpath + "/templates/"));
+            //设置字符编码
+            configuration.setDefaultEncoding("utf-8");
+
+            //指定模板文件名称
+            Template template = configuration.getTemplate("course_template.ftl");
+
+            //准备数据
+            CoursePreviewDto coursePreviewInfo = this.getCoursePreviewInfo(courseId);
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("model", coursePreviewInfo);
+
+            //静态化
+            //参数1：模板，参数2：数据模型
+            String content = FreeMarkerTemplateUtils.processTemplateIntoString(template, map);
+//            System.out.println(content);
+            //将静态化内容输出到文件中
+            InputStream inputStream = IOUtils.toInputStream(content);
+            //创建静态化文件
+            htmlFile = File.createTempFile("course",".html");
+            log.debug("课程静态化，生成静态文件:{}",htmlFile.getAbsolutePath());
+            //输出流
+            FileOutputStream outputStream = new FileOutputStream(htmlFile);
+            IOUtils.copy(inputStream, outputStream);
+        } catch (Exception e) {
+            log.error("课程静态化异常:{}",e.toString());
+            XueChengPlusException.cast("课程静态化异常");
+        }
+
+        return htmlFile;
+    }
+
+
+    @Override
+    public void uploadCourseHtml(Long courseId, File file) {
+        MultipartFile multipartFile = MultipartSupportConfig.getMultipartFile(file);
+        String course = mediaServiceClient.uploadFile(multipartFile, "course/"+courseId+".html");
+        if(course==null){
+            XueChengPlusException.cast("上传静态文件异常");
+        }
+    }
+
+    @Override
+    public Boolean saveCourseIndex(Long courseId) {
+        // 1. 取出课程发布信息
+        CoursePublish coursePublish = coursePublishMapper.selectById(courseId);
+        // 2. 拷贝至课程索引对象
+        CourseIndex courseIndex = new CourseIndex();
+        BeanUtils.copyProperties(coursePublish, courseIndex);
+        // 3. 远程调用搜索服务API，添加课程索引信息
+        Boolean result = searchServiceClient.add(courseIndex);
+        if (!result) {
+            XueChengPlusException.cast("添加索引失败");
+        }
+        return true;
+    }
+
+    /**
+     * 保存课程发布信息
+     *
+     * @param courseId 课程id
+     */
+    private void saveCoursePublish(Long courseId) {
+        CoursePublishPre coursePublishPre = coursePublishPreMapper.selectById(courseId);
+        if (coursePublishPre == null) {
+            XueChengPlusException.cast("课程预发布数据为空");
+        }
+        CoursePublish coursePublish = new CoursePublish();
+        BeanUtils.copyProperties(coursePublishPre, coursePublish);
+        // 设置发布状态为已发布
+        coursePublish.setStatus("203002");
+        CoursePublish coursePublishUpdate = coursePublishMapper.selectById(courseId);
+        // 有则更新，无则新增
+        if (coursePublishUpdate == null) {
+            coursePublishMapper.insert(coursePublish);
+        } else {
+            coursePublishMapper.updateById(coursePublish);
+        }
+        // 更新课程基本信息表的发布状态为已发布
+        CourseBase courseBase = courseBaseMapper.selectById(courseId);
+        courseBase.setAuditStatus("203002");
+        courseBaseMapper.updateById(courseBase);
+    }
+
+    /**
+     * 保存消息表
+     *
+     * @param courseId 课程id
+     */
+    private void saveCoursePublishMessage(Long courseId) {
+        MqMessage mqMessage = mqMessageService.addMessage("course_publish", String.valueOf(courseId), null, null);
+        if (mqMessage == null) {
+            XueChengPlusException.cast("添加消息记录失败");
+        }
     }
 }

@@ -1,12 +1,23 @@
 package com.huanf.content.service.jobhandler;
 
+import com.huanf.base.exception.XueChengPlusException;
+import com.huanf.content.domain.dto.CoursePreviewDto;
+import com.huanf.content.domain.entity.CoursePublish;
+import com.huanf.content.feignclient.CourseIndex;
+import com.huanf.content.feignclient.SearchServiceClient;
+import com.huanf.content.mapper.CoursePublishMapper;
+import com.huanf.content.service.CoursePublishService;
 import com.huanf.messagesdk.model.po.MqMessage;
 import com.huanf.messagesdk.service.MessageProcessAbstract;
 import com.huanf.messagesdk.service.MqMessageService;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.io.File;
 
 /**
  * 课程发布的任务类
@@ -15,6 +26,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class CoursePublishTask extends MessageProcessAbstract {
 
+    @Resource
+    CoursePublishService coursePublishService;
     //任务调度入口
     @XxlJob("CoursePublishJobHandler")
     public void coursePublishJobHandler() throws Exception {
@@ -44,38 +57,45 @@ public class CoursePublishTask extends MessageProcessAbstract {
 
     //生成课程静态化页面并上传至文件系统
     private void generateCourseHtml(MqMessage mqMessage,long courseId){
+        //1.做任务幂等性处理
         //消息id
         Long taskId = mqMessage.getId();
         MqMessageService mqMessageService = this.getMqMessageService();
-        //做任务幂等性处理
         //查询数据库取出该阶段执行状态
         int stageOne = mqMessageService.getStageOne(taskId);
-        if(stageOne>0){
-            log.error("课程静态化任务完成，无需处理");
-            return ;
+        if (stageOne == 1) {
+            log.debug("当前阶段为静态化课程信息任务，已完成，无需再次处理，任务信息：{}", mqMessage);
+            return;
         }
-        //开始进行课程静态化
-
+        //2.开始进行课程静态化
+        File file = coursePublishService.generateCourseHtml(courseId);
+        if(file==null){
+            XueChengPlusException.cast("生成的静态页面为空");
+        }
+        //将html上传到minio
+        coursePublishService.uploadCourseHtml(courseId,file);
+        //有错误都会往外抛，就不会运行到最后一步
         //任务处理完成写任务状态为完成
         mqMessageService.completedStageOne(taskId);
     }
 
     //保存课程索引信息
-    public void saveCourseIndex(MqMessage mqMessage,long courseId){
-        //消息id
-        Long taskId = mqMessage.getId();
+    public void saveCourseIndex(MqMessage mqMessage, Long courseId) {
+        log.debug("正在保存课程信息索引，课程id:{}", courseId);
+        // 1. 获取消息id
+        Long id = mqMessage.getId();
+        // 2. 获取小任务阶段状态
         MqMessageService mqMessageService = this.getMqMessageService();
-        //取出第二个阶段状态
-        int stageTwo = mqMessageService.getStageTwo(taskId);
-        if(stageTwo>0){
-            log.error("课程静态化任务完成，无需处理");
-            return ;
+        int stageTwo = mqMessageService.getStageTwo(id);
+        // 3. 当前小任务完成，无需再次处理
+        if (stageTwo == 1) {
+            log.debug("当前阶段为创建课程索引任务，已完成，无需再次处理，任务信息：{}", mqMessage);
+            return;
         }
-        //查询课程信息，调用搜索服务添加索引
-
-        //任务处理完成写任务状态为完成
-        mqMessageService.completedStageTwo(taskId);
+        // 4. 远程调用保存课程索引接口，将课程信息上传至ElasticSearch
+        Boolean result = coursePublishService.saveCourseIndex(courseId);
+        if (result) {
+            mqMessageService.completedStageTwo(id);
+        }
     }
-    //将课程信息缓存至redis
-
 }
