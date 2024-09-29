@@ -37,7 +37,7 @@ public interface CourseBaseService extends IService<CourseBase> {
      * @param courseId 课程ID
      * @return
      */
-    CourseBaseInfoDto getCourseBaseInfo(long courseId);
+    CourseBaseInfoDto getCourseBaseInfo(Long courseId);
 
     /**
      * 修改课程信息

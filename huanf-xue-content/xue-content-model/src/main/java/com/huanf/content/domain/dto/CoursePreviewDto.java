@@ -1,5 +1,6 @@
 package com.huanf.content.domain.dto;
 
+import com.huanf.content.domain.entity.CourseBase;
 import lombok.Data;
 
 import java.util.List;

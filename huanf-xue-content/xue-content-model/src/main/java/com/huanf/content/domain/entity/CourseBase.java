@@ -61,7 +61,4 @@ public class CourseBase  {
     //课程发布状态 未发布  已发布 下线
     private String status;
 
-    //课程是否需要收费。下面这个注解表示charge字段在course_base表不存在
-    @TableField(exist = false)
-    private String charge;
 }

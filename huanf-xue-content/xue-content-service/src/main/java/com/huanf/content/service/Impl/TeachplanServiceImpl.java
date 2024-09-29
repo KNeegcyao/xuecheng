@@ -11,6 +11,7 @@ import com.huanf.content.domain.entity.TeachplanMedia;
 import com.huanf.content.mapper.TeachplanMapper;
 import com.huanf.content.mapper.TeachplanMediaMapper;
 import com.huanf.content.service.TeachplanService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.sql.Wrapper;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 public class TeachplanServiceImpl implements TeachplanService {
     @Resource
@@ -42,23 +44,39 @@ public class TeachplanServiceImpl implements TeachplanService {
      * @param saveTeachplanDto
      */
     @Override
-    public void SaveTeachplan(SaveTeachplanDto saveTeachplanDto) {
+    public void SaveTeachplan(Teachplan saveTeachplanDto) {
+        if (saveTeachplanDto == null) {
+            XueChengPlusException.cast("课程计划对象不能为空");
+        }
+
         Long teachplanId = saveTeachplanDto.getId();
         if(teachplanId==null){
             //新增
             Teachplan teachplan = new Teachplan();
+            log.info("复制属性之前的 saveTeachplanDto: {}", saveTeachplanDto);
+
             BeanUtils.copyProperties(saveTeachplanDto,teachplan);
             //确定排序字段
             Long courseId = teachplan.getCourseId();
             Long parentId = teachplan.getParentid();
             int maxOrderBy  = getMaxOrderBy(courseId, parentId);
             teachplan.setOrderby(maxOrderBy+1);
-            teachplanMapper.insert(teachplan);
+            int insert = teachplanMapper.insert(teachplan);
+            if(insert<=0){
+                XueChengPlusException.cast("新增失败");
+            }
         }else{
             //修改
             Teachplan teachplan = teachplanMapper.selectById(teachplanId);
+            if (teachplan == null) {
+                throw new IllegalArgumentException("Teachplan not found with ID: " + teachplanId);
+            }
             BeanUtils.copyProperties(saveTeachplanDto,teachplan);
-            teachplanMapper.updateById(teachplan);
+            teachplan.setChangeDate(LocalDateTime.now());
+            int i = teachplanMapper.updateById(teachplan);
+            if(i<=0){
+                XueChengPlusException.cast("修改失败");
+            }
         }
     }
 

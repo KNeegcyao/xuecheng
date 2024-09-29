@@ -3,6 +3,7 @@ package com.huanf.content.api;
 import com.huanf.content.domain.dto.BindTeachplanMediaDto;
 import com.huanf.content.domain.dto.SaveTeachplanDto;
 import com.huanf.content.domain.dto.TeachplanDto;
+import com.huanf.content.domain.entity.Teachplan;
 import com.huanf.content.service.TeachplanService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,7 +28,7 @@ public class TeachplanController {
 
     @ApiOperation("课程计划创建或修改")
     @PostMapping("/teachplan")
-    public void SaveTeachplan(@RequestBody SaveTeachplanDto saveTeachplanDto){
+    public void SaveTeachplan(@RequestBody Teachplan saveTeachplanDto){
         teachplanService.SaveTeachplan(saveTeachplanDto);
     }
 
