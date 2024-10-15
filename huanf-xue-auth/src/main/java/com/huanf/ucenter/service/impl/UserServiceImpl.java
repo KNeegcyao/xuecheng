@@ -2,9 +2,11 @@ package com.huanf.ucenter.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.huanf.ucenter.mapper.XcMenuMapper;
 import com.huanf.ucenter.mapper.XcUserMapper;
 import com.huanf.ucenter.model.dto.AuthParamsDto;
 import com.huanf.ucenter.model.dto.XcUserExt;
+import com.huanf.ucenter.model.po.XcMenu;
 import com.huanf.ucenter.model.po.XcUser;
 import com.huanf.ucenter.service.AuthService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,12 +18,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
 public class UserServiceImpl implements UserDetailsService {
     @Resource
     XcUserMapper xcUserMapper;
+    @Resource
+    XcMenuMapper xcMenuMapper;
     @Resource
     //spring容器
     ApplicationContext applicationContext;
@@ -45,6 +51,7 @@ public class UserServiceImpl implements UserDetailsService {
         //调用统一的execute方法
         XcUserExt xcUserExt = bean.execute(authParamsDto);
         //封装xcUserExt用户信息为UserDetils
+        //根据UserDetails对象生成令牌
         UserDetails userPrincipal = getUserPrincipal(xcUserExt);
         return userPrincipal;
     }
@@ -54,12 +61,24 @@ public class UserServiceImpl implements UserDetailsService {
      */
     public UserDetails getUserPrincipal(XcUserExt xcUser){
         String password = xcUser.getPassword();
+        //根据用户id查询用户的权限
+        List<XcMenu> xcMenus = xcMenuMapper.selectPermissionByUserId(xcUser.getId());
+        List<String> permissions = new ArrayList<>();
+        if(xcMenus.isEmpty()){
+            //用户权限,如果不加则报Cannot pass a null GrantedAuthority collection
+            permissions.add("p1");
+        }else{
+           xcMenus.forEach(menu->{
+               permissions.add(menu.getCode());
+           });
+        }
         //权限
-        String[] authorities= {"test"};
+        xcUser.setPermissions(permissions);
         //敏感数据制空
         xcUser.setPassword(null);
         //将用户信息转json
         String userJson = JSON.toJSONString(xcUser);
+        String[] authorities = permissions.toArray(new String[0]);
         return User.withUsername(userJson).password(password).authorities(authorities).build();
     }
 
