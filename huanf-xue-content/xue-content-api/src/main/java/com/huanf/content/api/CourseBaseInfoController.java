@@ -10,9 +10,13 @@ import com.huanf.content.domain.dto.QueryCourseParamsDto;
 import com.huanf.content.domain.entity.CourseBase;
 import com.huanf.content.service.CourseBaseService;
 import com.huanf.content.service.TeacherService;
+import com.huanf.content.util.SecurityUtil;
+import com.huanf.content.util.SecurityUtil.XcUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,9 +32,10 @@ public class CourseBaseInfoController {
     CourseBaseService courseBaseService;
 
     @ApiOperation("课程查询接口")
+    @PreAuthorize("hasAuthority('xc_teachmanager_course_list')")//指定权限标识符
     @PostMapping("/course/list")
     public PageResult<CourseBase> list(PageParams pageParams, @RequestBody QueryCourseParamsDto queryCourseParams){
-       return courseBaseService.queryCourseBaseList(pageParams,queryCourseParams);
+        return courseBaseService.queryCourseBaseList(pageParams,queryCourseParams);
     }
 
     @ApiOperation("新增课程接口")
@@ -43,6 +48,9 @@ public class CourseBaseInfoController {
     @ApiOperation("根据id查询课程接口")
     @GetMapping("/course/{courseId}")
     public CourseBaseInfoDto getCourseBase(@PathVariable("courseId") Long courseId){
+        //取出当前用户信息
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println(principal);
         return courseBaseService.getCourseBaseInfo(courseId);
     }
 
