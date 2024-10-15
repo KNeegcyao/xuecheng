@@ -37,8 +37,9 @@ Content-Type: application/json
 }
 
 ###根据id查询课程
-GET {{content_host}}/content/course/40
-Authorization: Bearer
+### 通过网关访问资源服务
+GET http://localhost:63010/content/course/2
+Authorization: Bearer bf51641c-5d80-435e-b783-fb1442ab6ab5
 
 
 ###修改课程
