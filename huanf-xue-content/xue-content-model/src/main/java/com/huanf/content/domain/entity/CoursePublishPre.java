@@ -69,9 +69,9 @@ public class CoursePublishPre  {
     //收费规则，对应数据字典--203
     private String charge;
     //现价
-    private Integer price;
+    private Float price;
     //原价
-    private Integer originalPrice;
+    private Float originalPrice;
     //课程有效期天数
     private Integer validDays;
 }

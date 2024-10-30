@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Import;
 @EnableFeignClients(basePackages = {"com.huanf.content.feignclient"})
 @EnableSwagger2Doc
 @SpringBootApplication
-@Import(GlobalExceptionHandler.class)
 public class ContentApplication {
     public static void main(String[] args) {
         SpringApplication.run(ContentApplication.class, args);

@@ -48,4 +48,10 @@ public interface CoursePublishService extends IService<CoursePublishPre> {
      */
     Boolean saveCourseIndex(Long courseId);
 
+    /**
+     * 查询课程发布信息
+     * @param courseId
+     * @return
+     */
+    CoursePublish getCoursePublish(Long courseId);
 }

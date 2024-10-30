@@ -1,4 +1,4 @@
-package com.huanf.content.feignclient;
+package com.huanf.content.po;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;

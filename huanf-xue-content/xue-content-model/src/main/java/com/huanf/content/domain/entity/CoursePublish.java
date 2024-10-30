@@ -70,9 +70,9 @@ public class CoursePublish  {
     //收费规则，对应数据字典--203
     private String charge;
     //现价
-    private Object price;
+    private Float price;
     //原价
-    private Object originalPrice;
+    private Float originalPrice;
     //课程有效期天数
     private Integer validDays;
 }

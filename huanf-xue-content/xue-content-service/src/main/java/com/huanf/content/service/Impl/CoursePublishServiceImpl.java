@@ -8,7 +8,7 @@ import com.huanf.content.domain.dto.CourseBaseInfoDto;
 import com.huanf.content.domain.dto.CoursePreviewDto;
 import com.huanf.content.domain.dto.TeachplanDto;
 import com.huanf.content.domain.entity.*;
-import com.huanf.content.feignclient.CourseIndex;
+import com.huanf.content.po.CourseIndex;
 import com.huanf.content.feignclient.MediaServiceClient;
 import com.huanf.content.feignclient.SearchServiceClient;
 import com.huanf.content.mapper.CourseBaseMapper;
@@ -24,7 +24,6 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -160,11 +159,11 @@ public class CoursePublishServiceImpl extends ServiceImpl<CoursePublishPreMapper
             XueChengPlusException.cast("本机构只允许发布本机构的课程");
         }
         //向课程发布表course_publish插入一条记录,记录来源于课程预发布表，如果存在则更新，发布状态为：已发布。
+        saveCoursePublish(courseId);
         //向消息表写数据
         saveCoursePublishMessage(courseId);
         //删除课程预发布表的对应记录。
         coursePublishPreMapper.deleteById(courseId);
-        //向mq_message消息表插入一条消息，消息类型为：course_publish
 
     }
 
@@ -223,9 +222,15 @@ public class CoursePublishServiceImpl extends ServiceImpl<CoursePublishPreMapper
 
     @Override
     public void uploadCourseHtml(Long courseId, File file) {
-        MultipartFile multipartFile = MultipartSupportConfig.getMultipartFile(file);
-        String course = mediaServiceClient.uploadFile(multipartFile, "course/"+courseId+".html");
-        if(course==null){
+        try {
+            MultipartFile multipartFile = MultipartSupportConfig.getMultipartFile(file);
+            String course = mediaServiceClient.uploadFile(multipartFile, "course/"+courseId+".html");
+            if(course==null){
+                log.debug("远程调用走降级逻辑得到的结果为null,课程id:{}",courseId);
+                XueChengPlusException.cast("上传静态文件异常");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             XueChengPlusException.cast("上传静态文件异常");
         }
     }
@@ -243,6 +248,42 @@ public class CoursePublishServiceImpl extends ServiceImpl<CoursePublishPreMapper
             XueChengPlusException.cast("添加索引失败");
         }
         return true;
+//        // 1. 取出课程发布信息
+//        CoursePublish coursePublish = coursePublishMapper.selectById(courseId);
+//        if (coursePublish == null) {
+//            log.error("课程发布信息未找到，课程ID: {}", courseId);
+//            throw new XueChengPlusException("课程发布信息未找到");
+//        }
+//
+//        // 2. 拷贝至课程索引对象
+//        CourseIndex courseIndex = new CourseIndex();
+//        try {
+//            BeanUtils.copyProperties(coursePublish, courseIndex);
+//        } catch (Exception e) {
+//            log.error("拷贝课程发布信息至课程索引对象失败，课程ID: {}", courseId, e);
+//            throw new XueChengPlusException("课程索引对象生成失败");
+//        }
+//
+//        // 3. 远程调用搜索服务API，添加课程索引信息
+//        Boolean result = searchServiceClient.add(courseIndex);
+//        if (Boolean.FALSE.equals(result)) {
+//            log.error("远程调用添加课程索引失败，课程ID: {}", courseId);
+//            throw new XueChengPlusException("添加索引失败");
+//        }
+//        log.info("成功添加课程索引，课程ID: {}", courseId);
+//        return true;
+    }
+
+
+    /**
+     * 查询课程发布信息
+     * @param courseId
+     * @return
+     */
+    @Override
+    public CoursePublish getCoursePublish(Long courseId) {
+        CoursePublish coursePublish = coursePublishMapper.selectById(courseId);
+        return coursePublish;
     }
 
     /**
