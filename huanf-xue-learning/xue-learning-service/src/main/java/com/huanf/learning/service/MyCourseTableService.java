@@ -1,6 +1,8 @@
 package com.huanf.learning.service;
 
+import com.huanf.base.model.PageResult;
 import com.huanf.content.domain.entity.CoursePublish;
+import com.huanf.learning.model.dto.MyCourseTableParams;
 import com.huanf.learning.model.dto.XcChooseCourseDto;
 import com.huanf.learning.model.dto.XcCourseTablesDto;
 import com.huanf.learning.model.po.XcChooseCourse;
@@ -39,4 +41,12 @@ public interface MyCourseTableService {
      * @return
      */
     boolean saveChooseCourseSuccess(String chooseCourseId);
+    /**
+     * @description 我的课程表
+     * @param params
+     * @return com.xuecheng.base.model.PageResult<com.xuecheng.learning.model.po.XcCourseTables>
+     * @author Mr.M
+     * @date 2022/10/27 9:24
+     */
+    public PageResult<XcCourseTables> mycoursetables(MyCourseTableParams params);
 }

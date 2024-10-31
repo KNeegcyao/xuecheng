@@ -1,16 +1,20 @@
 package com.huanf.learning.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.huanf.base.exception.XueChengPlusException;
+import com.huanf.base.model.PageResult;
 import com.huanf.content.domain.entity.CoursePublish;
 import com.huanf.learning.mapper.XcChooseCourseMapper;
 import com.huanf.learning.mapper.XcCourseTablesMapper;
+import com.huanf.learning.model.dto.MyCourseTableParams;
 import com.huanf.learning.model.dto.XcChooseCourseDto;
 import com.huanf.learning.model.dto.XcCourseTablesDto;
 import com.huanf.learning.model.po.XcChooseCourse;
 import com.huanf.learning.model.po.XcCourseTables;
 import com.huanf.learning.service.MyCourseTableService;
 import com.huanf.learning.feignclient.ContentServiceClient;
+import freemarker.template.utility.SecurityUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Insert;
 import org.springframework.beans.BeanUtils;
@@ -18,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Security;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -243,5 +248,26 @@ public class MyCourseTableServiceImpl implements MyCourseTableService {
 
         }
         return false;
+    }
+
+    @Override
+    public PageResult<XcCourseTables> mycoursetables(MyCourseTableParams params) {
+        //页码
+        int pageNo = params.getPage();
+        //每页记录数
+        int pageSize = params.getSize();
+        //分页条件
+        Page<XcCourseTables> page = new Page<>(pageNo, pageSize);
+        //根据用户id查询
+        String userId = params.getUserId();
+        LambdaQueryWrapper<XcCourseTables> lambdaQueryWrapper = new LambdaQueryWrapper<XcCourseTables>().eq(XcCourseTables::getUserId, userId);
+        //分页查询
+        Page<XcCourseTables> pageResult = xcCourseTablesMapper.selectPage(page, lambdaQueryWrapper);
+        List<XcCourseTables> records = pageResult.getRecords();
+        //记录总数
+        long total = pageResult.getTotal();
+        PageResult<XcCourseTables> courseTablesPageResult = new PageResult<>(records, total, pageNo, pageSize);
+        return courseTablesPageResult;
+
     }
 }

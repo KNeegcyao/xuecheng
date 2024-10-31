@@ -1,10 +1,14 @@
 package com.huanf.content.api;
 
+import com.huanf.base.utils.JsonUtil;
+import com.huanf.content.domain.dto.CourseBaseInfoDto;
 import com.huanf.content.domain.dto.CoursePreviewDto;
+import com.huanf.content.domain.dto.TeachplanDto;
 import com.huanf.content.domain.entity.CoursePublish;
 import com.huanf.content.service.CoursePublishService;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 课程上传接口
@@ -69,5 +74,23 @@ public class CoursePublishController {
     public CoursePublish getCoursepublish(@PathVariable("courseId") Long courseId) {
         CoursePublish coursePublish = coursePublishService.getCoursePublish(courseId);
         return coursePublish;
+    }
+    @ApiOperation("获取课程发布信息")
+    @ResponseBody
+    @GetMapping("/course/whole/{courseId}")
+    public CoursePreviewDto getCoursePublish(@PathVariable("courseId") Long courseId){
+        CoursePreviewDto coursePreviewDto = new CoursePreviewDto();
+        CoursePublish coursePublish = coursePublishService.getCoursePublish(courseId);
+        if(coursePublish==null){
+            return coursePreviewDto;
+        }
+        //封装coursePreviewDto
+        CourseBaseInfoDto courseBaseInfoDto = new CourseBaseInfoDto();
+        BeanUtils.copyProperties(coursePublish,courseBaseInfoDto);
+        String teachplan = coursePublish.getTeachplan();
+        List<TeachplanDto> teachplanDtos = JsonUtil.jsonToList(teachplan, TeachplanDto.class);
+        coursePreviewDto.setTeachplans(teachplanDtos);
+        coursePreviewDto.setCourseBase(courseBaseInfoDto);
+        return coursePreviewDto;
     }
 }

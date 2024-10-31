@@ -52,6 +52,7 @@
             <result column="c_orderby" property="orderby"></result>
             <result column="c_courseId" property="courseId"></result>
             <result column="c_coursePubId" property="coursePubId"></result>
+            <result column="c_isPreview" property="isPreview"></result>
             <!-- 媒资信息映射 -->
             <association property="teachplanMedia" javaType="com.huanf.content.domain.entity.TeachplanMedia">
                 <result column="teachplanMeidaId" property="id"></result>
