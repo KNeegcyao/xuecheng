@@ -1,0 +1,1 @@
+POST {{order_host}}/orders/generatepaycode

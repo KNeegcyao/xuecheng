@@ -111,3 +111,6 @@ DELETE {{content_host}}/content/courseTeacher/course/75/24
 
 ###删除课程信息
 DELETE {{content_host}}/content/course/201
+
+### 查询课程发布信息
+GET {{content_host}}/content/r/coursepublish/2

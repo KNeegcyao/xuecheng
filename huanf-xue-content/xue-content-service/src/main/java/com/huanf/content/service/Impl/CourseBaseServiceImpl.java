@@ -177,18 +177,16 @@ public class CourseBaseServiceImpl extends ServiceImpl<CourseBaseMapper, CourseB
             XueChengPlusException.cast("修改课程失败");
         }
         //更新营销信息
-        int i2 = courseMarketMapper.updateById(courseMarket);
-        if(i2<=0){
-            XueChengPlusException.cast("修改课程失败");
-        }
-
+        CourseMarket courseMarket1 = new CourseMarket();
+        BeanUtils.copyProperties(editCourseDto,courseMarket1);
+        saveCourseMarket(courseMarket1);
         //查询课程信息
         return getCourseBaseInfo(courseId);
     }
 
     /**
      * 删除课程信息
-     * @param l
+     * @param companyId
      * @param courseId
      */
     @Override

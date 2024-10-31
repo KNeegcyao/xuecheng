@@ -54,7 +54,6 @@ public class TeachplanServiceImpl implements TeachplanService {
             //新增
             Teachplan teachplan = new Teachplan();
             log.info("复制属性之前的 saveTeachplanDto: {}", saveTeachplanDto);
-
             BeanUtils.copyProperties(saveTeachplanDto,teachplan);
             //确定排序字段
             Long courseId = teachplan.getCourseId();
@@ -71,7 +70,7 @@ public class TeachplanServiceImpl implements TeachplanService {
             if (teachplan == null) {
                 throw new IllegalArgumentException("Teachplan not found with ID: " + teachplanId);
             }
-            BeanUtils.copyProperties(saveTeachplanDto,teachplan);
+            BeanUtils.copyProperties(saveTeachplanDto,teachplan,"id","createDate");
             teachplan.setChangeDate(LocalDateTime.now());
             int i = teachplanMapper.updateById(teachplan);
             if(i<=0){

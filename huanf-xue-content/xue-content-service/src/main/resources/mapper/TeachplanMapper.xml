@@ -34,7 +34,7 @@
         <result column="p_parentid" property="parentid"></result>
         <result column="p_grade" property="grade"></result>
         <result column="p_mediaType" property="mediaType"></result>
-        <result column="p_startTime" property="startTime"/>
+        <result column="p_startTime" property="startTime"></result>
         <result column="p_endTime" property="endTime"></result>
         <result column="p_orderby" property="orderby"></result>
         <result column="p_courseId" property="courseId"></result>
@@ -47,11 +47,12 @@
             <result column="c_parentid" property="parentid"></result>
             <result column="c_grade" property="grade"></result>
             <result column="c_mediaType" property="mediaType"></result>
-            <result column="c_startTime" property="startTime"/>
+            <result column="c_startTime" property="startTime"></result>
             <result column="c_endTime" property="endTime"></result>
             <result column="c_orderby" property="orderby"></result>
             <result column="c_courseId" property="courseId"></result>
             <result column="c_coursePubId" property="coursePubId"></result>
+            <result column="c_isPreview" property="isPreview"></result>
             <!-- 媒资信息映射 -->
             <association property="teachplanMedia" javaType="com.huanf.content.domain.entity.TeachplanMedia">
                 <result column="teachplanMeidaId" property="id"></result>
