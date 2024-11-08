@@ -80,7 +80,8 @@ public class CoursePublishController {
     @GetMapping("/course/whole/{courseId}")
     public CoursePreviewDto getCoursePublish(@PathVariable("courseId") Long courseId){
         CoursePreviewDto coursePreviewDto = new CoursePreviewDto();
-        CoursePublish coursePublish = coursePublishService.getCoursePublish(courseId);
+//        CoursePublish coursePublish = coursePublishService.getCoursePublish(courseId);
+        CoursePublish coursePublish = coursePublishService.getCoursePublishCache(courseId);                                                                                                 
         if(coursePublish==null){
             return coursePreviewDto;
         }

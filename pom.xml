@@ -15,6 +15,12 @@
         <module>huanf-xue-gateway</module>
         <module>huanf-xue-media</module>
         <module>huanf-xue-system</module>
+        <module>huanf-xue-auth</module>
+        <module>huanf-xue-checkcode</module>
+        <module>huanf-xue-learning</module>
+        <module>huanf-xue-orders</module>
+        <module>huanf-xue-sdk</module>
+        <module>huanf-xue-search</module>
 
     </modules>
 

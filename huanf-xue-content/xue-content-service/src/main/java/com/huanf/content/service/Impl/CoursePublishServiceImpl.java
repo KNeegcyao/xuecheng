@@ -24,7 +24,11 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.redisson.Redisson;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
@@ -39,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 课程发布相关接口实现
@@ -62,9 +67,12 @@ public class CoursePublishServiceImpl extends ServiceImpl<CoursePublishPreMapper
     MediaServiceClient mediaServiceClient;
     @Resource
     CoursePublishMapper coursePublishMapper;
-
     @Resource
     SearchServiceClient searchServiceClient;
+    @Resource
+    RedisTemplate redisTemplate;
+    @Resource
+    RedissonClient redissonClient;
 
     /**
      * 获取课程预览信息
@@ -286,6 +294,8 @@ public class CoursePublishServiceImpl extends ServiceImpl<CoursePublishPreMapper
         return coursePublish;
     }
 
+
+
     /**
      * 保存课程发布信息
      *
@@ -322,6 +332,53 @@ public class CoursePublishServiceImpl extends ServiceImpl<CoursePublishPreMapper
         MqMessage mqMessage = mqMessageService.addMessage("course_publish", String.valueOf(courseId), null, null);
         if (mqMessage == null) {
             XueChengPlusException.cast("添加消息记录失败");
+        }
+    }
+    /**
+     * @description 查询缓存中的课程信息
+     * @param courseId
+     * @return com.xuecheng.content.model.po.CoursePublish
+     */
+    @Override
+    public CoursePublish getCoursePublishCache(Long courseId) {
+        //Cache查询缓存
+        Object result = redisTemplate.opsForValue().get("course:" + courseId);
+        if (result != null) {
+            //System.out.println("==========查询缓存=========");
+            //缓存中有数据
+            String jsonString = result.toString();
+            if (jsonString.equals("null")) {
+                return null;
+            }
+            CoursePublish coursePublish = JsonUtil.jsonToObject(jsonString, CoursePublish.class);
+            return coursePublish;
+        } else {
+            RLock lock = redissonClient.getLock("coursequerylock:" + courseId);
+            //获取分布式锁
+            lock.lock();
+            try {
+                result = redisTemplate.opsForValue().get("course:" + courseId);
+                if (result != null) {
+                    //System.out.println("==========查询缓存=========");
+                    //缓存中有数据
+                    String jsonString = result.toString();
+                    if (jsonString.equals("null")) {
+                        return null;
+                    }
+                    CoursePublish coursePublish = JsonUtil.jsonToObject(jsonString, CoursePublish.class);
+                    return coursePublish;
+                }
+                System.out.println("==========查询数据库==========");
+                //缓存中没有数据
+                //先从数据库中查找
+                CoursePublish coursePublish = coursePublishMapper.selectById(courseId);
+                //保存到缓存中
+                redisTemplate.opsForValue().set("course:" + courseId, JsonUtil.objectTojson(coursePublish), 30, TimeUnit.SECONDS);
+                return coursePublish;
+            } finally {
+                //手动释放锁
+                lock.isLocked();
+            }
         }
     }
 }

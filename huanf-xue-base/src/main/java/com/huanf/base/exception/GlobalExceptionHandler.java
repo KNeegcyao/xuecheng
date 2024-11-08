@@ -1,10 +1,8 @@
 package com.huanf.base.exception;
 
-import com.huanf.base.exception.XueChengPlusException;
-import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.ognl.MethodFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
