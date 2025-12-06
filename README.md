@@ -1,8 +1,22 @@
+# 说明
 
+> 可以包装成学校实验室项目，和同学共同开发，由老师搭建框架，自己负责几个模块就行，本文列举的是内容管理模块，媒体资源模块，课程发布模块，项目介绍和具体职责自行修改润色。
+
+-->[完整代码地址](https://github.com/KNeegcyao/xuecheng)
 
 # 项目介绍 
 
-​		学成在线项目是本公司自研的一个专门针对成人职业技能教育的网络课堂系统，网站提供了成人职业技能培训的相关课程，如：软件开发培训、职业资格证书培训、成人学历教育培训等课程。项目基于B2B2C的业务模式，培训机构可以在平台入驻、发布课程，运营人员对发布的课程进行审核，审核通过后课程才可以发布成功，课程包括免费和收费两种形式，对于免费课程可以直接选课学习，对于收费课程在选课后需要支付成功才可以继续学习。
+​    学成在线项目是本公司自研的一个专门针对成人职业技能教育的网络课堂系统，网站提供了成人职业技能培训的相关课程，如：软件开发培训、职业资格证书培训、成人学历教育培训等课程。项目基于B2B2C的业务模式，培训机构可以在平台入驻、发布课程，运营人员对发布的课程进行审核，审核通过后课程才可以发布成功，课程包括免费和收费两种形式，对于免费课程可以直接选课学习，对于收费课程在选课后需要支付成功才可以继续学习。
+
+# 具体职责
+
+> - 页面静态化：使用FreeMarker对页面静态化生成HTML页面上传至文件系统，提供高效的发布过程。
+> - 课程内容与文件存储：主导 MinIO 分布式存储集成，通过分块上传与断点续传机制，实现课程视频/作业等文件的高效传输，支持 100+ 并发操作，文件上传平均耗时从 500ms 降至 200ms。
+> - 课程信息优化:针对课程发布信息读多写少的业务特点，使用Redis进行缓存，解决了缓存穿透，雪崩，击穿。
+> - 课程发布任务调度：基于 XXL-JOB 搭建任务调度中心，统一调度5类定时任务；配置失败重试机制，支持可视化任务监控与调度配置。
+> - 分布式锁优化:对课程过期提醒等高并发任务，基于 Redisson 实现 Redis 分布式锁，替代数据库乐观锁方案，解决多实例任务调度时的资源竞争问题，显著降低任务重复执行率，提升系统可靠性。
+> - 课程发布的事务控制：通过本地消息表+异步任务调度，事务内持久化课程发布状态与同步任务，解耦多存储（Redis/ES/MinIO）数据同步，保障分布式环境下最终一致性
+> - 优化课程搜索： ES 重构课程搜索，采用IK分词+权重查询(multi_match)策略，延迟从 2000ms 降至 50ms，搜索转化率提升 15%。
 
 ## 业务介绍
 
@@ -10,11 +24,11 @@
 
 核心模块包括：内容管理、媒资管理、课程搜索、订单支付、选课管理、认证授权等。
 
-<img src="https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250825163910667.png" alt="image-20250825163910667" style="zoom:67%;" />
+<img src="https://i-blog.csdnimg.cn/img_convert/a1653e2afe9430e0c6d5fc790a0224ef.png" alt="image-20250825163910667" style="zoom:67%;" />
 
 1、课程编辑与发布流程如下
 
-<img src="https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250825164001595.png" alt="image-20250825164001595" style="zoom: 67%;" />
+<img src="https://i-blog.csdnimg.cn/img_convert/d4b285dc99fb6e381c1de39a7b9a6333.png" alt="image-20250825164001595" style="zoom: 67%;" />
 
 2、课程发布后学生登录平台进行选课、在线学习。
 
@@ -22,7 +36,7 @@
 
 学生选课流程如下：
 
-<img src="https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250825164033014.png" alt="image-20250825164033014" style="zoom:67%;" />
+<img src="https://i-blog.csdnimg.cn/img_convert/1ef2767d324f98e9ed92ccfbcba17fc6.png" alt="image-20250825164033014" style="zoom:67%;" />
 
 ## 技术架构
 
@@ -32,7 +46,7 @@
 
 下图是项目的技术架构图：
 
-<img src="https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250825164203932.png" alt="image-20250825164203932" style="zoom:67%;" />
+<img src="https://i-blog.csdnimg.cn/img_convert/b7eb996f79d54385844fc5eaf3f4b598.png" alt="image-20250825164203932" style="zoom:67%;" />
 
 
 
@@ -40,7 +54,7 @@
 
 
 
-![image-20250826160417589](https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250826160417589.png)
+![image-20250826160417589](https://i-blog.csdnimg.cn/img_convert/55894da54c060449eb2d5c74e8ca294e.png)
 
 流程如下：
 
@@ -127,7 +141,7 @@
 
 ​     FreeMarker是一款模板引擎，即一种基于模板和要改变的数据， 并用来生成输出文本(HTML网页，电子邮件，配置文件，源代码等)的通用工具。
 
-<img src="https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250813100752131.png" alt="image-20250813100752131" style="zoom:50%;" />
+<img src="https://i-blog.csdnimg.cn/img_convert/a98a56f096ce91cf89f1c9a94bc3d494.png" alt="image-20250813100752131" style="zoom:50%;" />
 
 像课程详情页、新闻详情页这类**内容相对固定、访问量高**的页面，用模板引擎生成**静态 HTML 文件**更高效。比如项目中的课程预览静态化，生成 HTML 后可直接部署到 MinIO，用户访问时无需实时渲染，**加载更快、服务器压力更小**。
 
@@ -335,7 +349,7 @@ public void expireJob() {
 
 ### 如何进行分布式任务处理呢？
 
-![image-20250813112649301](https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250813112649301.png)
+![image-20250813112649301](https://i-blog.csdnimg.cn/img_convert/e00484e9168d7a1406440c874a00f2b6.png)
 
 我们会启动多个执行器组成一个集群，去执行任务
 
@@ -374,7 +388,7 @@ Java语言任务获取分片参数方式：BEAN。
 
 XXL-JOB并不直接提供数据处理的功能，它只会给执行器分配好分片序号，在向执行器任务调度的同时下发分片总数以及分片序号等参数，执行器收到这些参数根据自己的业务需求去利用这些参数。
 
-<img src="https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250813141229412.png" alt="image-20250813141229412" style="zoom:50%;" />
+<img src="https://i-blog.csdnimg.cn/img_convert/ccf0c6c8f0ee3b0a71fefadbd4372600.png" alt="image-20250813141229412" style="zoom:50%;" />
 
 每个执行器收到广播任务有两个参数：分片总数、分片序号。每个执行从数据表取任务时可以让任务id 模上 分片总数，如果等于分片序号则执行此任务。
 
@@ -437,7 +451,7 @@ XXL-JOB并不直接提供数据处理的功能，它只会给执行器分配好�
 
 ### 说一下这个视频上传与处理流程？
 
-![image-20250813141614673](https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250813141614673.png)
+![image-20250813141614673](https://i-blog.csdnimg.cn/img_convert/4bb6bf705fbfd5ced314f93ac2373f53.png)
 
 **1. 上传阶段**：用户通过客户端上传视频文件，请求首先进入网关进行路由和初步校验，随后分发到媒资服务。
  **2. 分块与合并**：媒资服务会将大文件切分成多个小分片（例如5MB/块），并逐个上传到MinIO。上传过程中会记录每个分片的状态（如已上传的分片序号），当所有分片上传完成后，媒资服务会将这些分片合并成完整的视频文件。
@@ -699,7 +713,7 @@ MinIO中存储了课程的静态化页面文件（html网页），查看课程�
 
 下图是具体的技术方案：
 
-![image-20250814094715751](https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250814094715751.png)
+![image-20250814094715751](https://i-blog.csdnimg.cn/img_convert/8336781be306f89a9325240dc7cb20d1.png)
 
 1、在内容管理服务的数据库中添加一个消息表，消息表和课程发布表在同一个数据库。
 
@@ -715,7 +729,7 @@ MinIO中存储了课程的静态化页面文件（html网页），查看课程�
 
 下图是课程发布操作的流程：
 
-![image-20250814094748148](https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250814094748148.png)
+![image-20250814094748148](https://i-blog.csdnimg.cn/img_convert/c2b8f792ad141b8efde5c5896b4c44b8.png)
 
 1、执行发布操作，内容管理服务存储课程发布表的同时向消息表添加一条“课程发布任务”。这里使用本地事务保证课程发布信息保存成功，同时消息表也保存成功。
 
@@ -784,13 +798,13 @@ create table mq_message
 
 当下游服务异常而断开与上游服务的交互，它就相当于保险丝，下游服务异常触发了熔断，从而保证上游服务不受影响。
 
-<img src="https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250828104923529.png" alt="image-20250828104923529" style="zoom:33%;" />
+<img src="https://i-blog.csdnimg.cn/img_convert/36be126f90b82486862b95188f525692.png" alt="image-20250828104923529" style="zoom:33%;" />
 
 **降级：**
 
 当下游服务异常触发熔断后，上游服务就不再去调用异常的微服务而是执行了降级处理逻辑，这个降级处理逻辑可以是本地一个单独的方法。
 
-<img src="https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250828105004716.png" alt="image-20250828105004716" style="zoom:33%;" />
+<img src="https://i-blog.csdnimg.cn/img_convert/25954f9091c445f9cb85e5f46efdaffa.png" alt="image-20250828105004716" style="zoom:33%;" />
 
 两者都是为了保护系统，熔断是当下游服务异常时一种保护系统的手段，降级是熔断后上游服务处理熔断的方法。
 
@@ -937,7 +951,7 @@ Logstash： 开源实时日志分析平台 ELK包括Elasticsearch、Kibana、Log
 | 充电器           | 3          |
 | 手环             | 4          |
 
-![image-20250817100902071](https://cdn.jsdelivr.net/gh/KNeegcyao/picdemo/img/image-20250817100902071.png)
+![image-20250817100902071](https://i-blog.csdnimg.cn/img_convert/f274348e9838b5c2099621c950f6f144.png)
 
 ---
 
